@@ -63,38 +63,39 @@
             # place additional overlays here.
             #a_pkg = prev.a_pkg.overrideAttrs (old: nativeBuildInputs = old.nativeBuildInputs ++ [pkgs.someBuildTool] ++ (final.resolveBuildSystems { setuptools = [];});
 
-            pyqt6-qt6 = _prev.pyqt6-qt6.overrideAttrs (old: {
-              autoPatchelfIgnoreMissingDeps =
-                [ "libmysqlclient.so.21" "libmimerapi.so" "libQt6*" ];
-              propagatedBuildInputs = old.propagatedBuildInputs or [ ] ++ [
-                pkgs.qt6.full # Isn't this kind of cheating? The whole point of pyqt6-qt6
-                # is to provide only what pyqt6 needs, not the whole qt6.full.
-                pkgs.libxkbcommon
-                pkgs.gtk3
-                pkgs.speechd
-                pkgs.gst
-                pkgs.gst_all_1.gst-plugins-base
-                pkgs.gst_all_1.gstreamer
-                pkgs.postgresql.lib
-                pkgs.unixODBC
-                pkgs.pcsclite
-                pkgs.xorg.libxcb
-                pkgs.xorg.xcbutil
-                pkgs.xorg.xcbutilcursor
-                pkgs.xorg.xcbutilerrors
-                pkgs.xorg.xcbutilimage
-                pkgs.xorg.xcbutilkeysyms
-                pkgs.xorg.xcbutilrenderutil
-                pkgs.xorg.xcbutilwm
-                pkgs.libdrm
-                pkgs.pulseaudio
-              ];
-            });
-
-            # https://pypi.org/project/PyQt6/
-            pyqt6 = _prev.pyqt6.overrideAttrs (old: {
-              buildInputs = old.buildInputs or [ ] ++ [ _final.pyqt6-qt6 ];
-            });
+            pyside6-essentials = _prev.pyside6-essentials.overrideAttrs (old:
+              pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+                autoPatchelfIgnoreMissingDeps = [
+                  "libmysqlclient.so.21"
+                  "libmimerapi.so"
+                  "libQt6EglFsKmsGbmSupport.so*"
+                ];
+                preFixup = ''
+                  addAutoPatchelfSearchPath ${_final.shiboken6}/${_final.python.sitePackages}/shiboken6
+                '';
+                propagatedBuildInputs = old.propagatedBuildInputs or [ ] ++ [
+                  pkgs.qt6.full
+                  pkgs.libxkbcommon
+                  pkgs.gtk3
+                  pkgs.speechd
+                  pkgs.gst
+                  pkgs.gst_all_1.gst-plugins-base
+                  pkgs.gst_all_1.gstreamer
+                  pkgs.postgresql.lib
+                  pkgs.unixODBC
+                  pkgs.pcsclite
+                  pkgs.xorg.libxcb
+                  pkgs.xorg.xcbutil
+                  pkgs.xorg.xcbutilcursor
+                  pkgs.xorg.xcbutilerrors
+                  pkgs.xorg.xcbutilimage
+                  pkgs.xorg.xcbutilkeysyms
+                  pkgs.xorg.xcbutilrenderutil
+                  pkgs.xorg.xcbutilwm
+                  pkgs.libdrm
+                  pkgs.pulseaudio
+                ];
+              });
           });
 
       # This example is only using x86_64-linux
